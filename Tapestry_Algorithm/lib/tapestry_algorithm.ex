@@ -19,12 +19,26 @@ defmodule TapestryAlgorithm do
     node_ids_list = generate_node_ids(num_nodes, string_length)
     Enum.each(node_ids_list, fn node->
       # routing_table = tableInit(string_length,node,node_ids_list)
-      {:ok, tapestry_node_pid} = GenServer.start_link(TapestryNode, [main_pid, node_ids_list, node, string_length])
+      {:ok, tapestry_node_pid} = GenServer.start_link(TapestryNode, [main_pid, node_ids_list, node, string_length], name: String.to_atom("actor_"<>node))
       # IO.inspect tapestry_node_pid
     end)
 
+    #Start requesting for objects
+    start_requesting(node_ids_list)
+
+      receive do
+        {:algo_end, _response} ->
+
+      end
+
   end
 
+  def start_requesting(node_ids_list) do
+    Enum.each(node_ids_list, fn node->
+      IO.puts "Inside start requesting"
+      GenServer.cast(String.to_atom("actor_"<>node), {:start_hop, 0, 0})
+    end)
+  end
   #This is generating the node ids
   def generate_node_ids(num_nodes, string_length) do
     node_list = Enum.map(1..num_nodes-1, fn node ->
@@ -52,6 +66,7 @@ defmodule TapestryAlgorithm do
     end
      node_hash_nozero
   end
+
 
 
 end

@@ -1,30 +1,41 @@
 defmodule Utils do
 
   def nextHop(n,g,self,rt) do
-    if n == length(rt) do
+
+    # IO.inspect rt
+    if n == map_size(rt) do
       %{"node"=> self, "level" => n}
     else
+      IO.puts "Inside else part"
       d = String.at(g,n)
       e = rt[n][d]
       e = checkColumn(e,n,d,rt)
+      IO.inspect ("here #{e}")
       if e == self do
         nextHop(n + 1,g,self,rt)
       else
-        %{"node" => e, "level" => n}
+        %{"node" => e, "level" => n+1}
       end
     end
   end
 
   def checkColumn(e,n,d,rt) do
-    d = String.to_integer(d, 16)
-    if e == nil do
+    d = String.to_integer(d,16)
+    next =  cond do
+	    e == nil ->
       d = rem((d + 1),16)
+      d = Integer.to_string(d, 16)
       e = rt[n][d]
-      Integer.to_string(d, 16)
-      checkColumn(e,n,d,rt)
-    else
+      #if e != nil do
+        #IO.inspect e
+      #end
+	     checkColumn(e,n,d,rt)
+    true->
+      #IO.inspect "here"
       e
     end
+    #IO.inspect("returning  #{next} for #{e} #{n} #{self}")
+    next
   end
 
   #Generates the routing table
