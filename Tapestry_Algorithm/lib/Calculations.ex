@@ -6,11 +6,11 @@ defmodule Utils do
     if n == map_size(rt) do
       %{"node"=> self, "level" => n}
     else
-      IO.puts "Inside else part"
+      #IO.puts "Inside else part"
       d = String.at(g,n)
       e = rt[n][d]
       e = checkColumn(e,n,d,rt)
-      IO.inspect ("here #{e}")
+      #IO.inspect ("here #{e}")
       if e == self do
         nextHop(n + 1,g,self,rt)
       else
@@ -40,13 +40,14 @@ defmodule Utils do
 
   #Generates the routing table
   def tableInit(n,node_id,node_list) do
-    IO.puts "node is #{node_id}"
+    #IO.puts "node is #{node_id}"
     Enum.reduce(0..n, %{}, fn x, acc ->
       Map.put(acc, x, Enum.reduce(0..15, %{}, fn y, acc1 ->
         Map.put(acc1,Integer.to_string(y, 16),get_entry_node(node_id,node_list,x,Integer.to_string(y, 16)))
       end))
     end)
   end
+
 
   #Gets the node that is to be added to the routing table
   def get_entry_node(node_id,node_list,level,column) do

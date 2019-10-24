@@ -6,12 +6,11 @@ defmodule TapestryNode do
     state=  %{
       "main_pid" => Enum.at(node_state, 0),
       "routingTable" => Utils.tableInit(Enum.at(node_state, 3),Enum.at(node_state, 2),Enum.at(node_state, 1)),
-      "nodeID" => Enum.at(node_state, 2),
+      "nodeId" => Enum.at(node_state, 2),
       "global_list" => Enum.at(node_state, 1),
       "backPointers" => [],
       "node_hash_length" => Enum.at(node_state, 3)
       }
-    # IO.inspect state["routingTable"]
     {:ok, state}
   end
 
@@ -22,21 +21,38 @@ defmodule TapestryNode do
   #object_hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
 
 
-  def handle_cast({:start_hop, hopcount, level}, state) do
-    IO.puts "Inside start hop"
+  def handle_cast({:start_hop, num_msgs}, state) do
+    #IO.puts "Inside start hop"
     string_length = state["node_hash_length"]
+    Enum.each(1..num_msgs, fn _x ->
     n = :rand.uniform(10000)
     object_hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
     object_hash_nozero = remove_zero(object_hash)
     final_object_hash=String.slice((object_hash_nozero),0..string_length)
-    IO.puts "Final object hash is #{final_object_hash}"
-    self = state["nodeID"]
+    #IO.puts "Final object hash is #{final_object_hash}"
+    GenServer.cast(self, {:next_hop, 0, 0, final_object_hash})
+    end)
+
+    {:noreply, state}
+
+  end
+
+  def handle_cast({:next_hop, hopCount, level, objectId}, state) do
+    self = state["nodeId"]
     rt = state["routingTable"]
-
-    next_hop=Utils.nextHop(level,final_object_hash,self,rt)
-    IO.inspect("#{next_hop["level"]} #{next_hop["node"]} #{final_object_hash}")
-
-  {:noreply, state}
+    next_hop=Utils.nextHop(level,objectId,self,rt)
+    #IO.inspect("#{next_hop["level"]} #{next_hop["node"]} #{objectId}")
+    if next_hop["node"] == self do
+      #this means that self is the root node for objectId
+      #send hop count to main
+      send(state["main_pid"], {:hop_count,hopCount})
+    else
+      #self is not root. got next hop node
+      #increment hopcount and cast to next hop node
+      #IO.inspect("to next hope #{next_hop["node"]}")
+      GenServer.cast(String.to_atom("actor_"<>next_hop["node"]), {:next_hop, hopCount + 1, next_hop["level"], objectId})
+    end
+    {:noreply, state}
   end
 
   #This removes the nodes with leading zeros
