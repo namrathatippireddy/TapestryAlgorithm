@@ -1,35 +1,33 @@
 defmodule Utils do
-  # def nextHop(n,g,self,rt) do
-  #   if n == length(rt) do
-  #     self
-  #   else
-  #     d = Enum.at(String.codepoints(g), n)
-  #     e = rt[n][d]
-  #     while
-  #
-  #      e == nil do
-  #       d = d + 1
-  #       e = rt[n][d]
-  #     end
-  #     if e == self do
-  #       nextHop(n + 1,g,self,rt)
-  #     else
-  #       e
-  #     end
-  #   end
-  # end
-  #
-  # def tableInit(n) do
-  #   Enum.reduce(0..n, %{}, fn x, acc ->
-  #     Map.put(acc, x, Enum.reduce(0..15, %{}, fn y, acc1 ->
-  #       Map.put(acc1,Integer.to_string(y, 16),nil)
-  #   end))
-  #   end)
-  # end
 
+  def nextHop(n,g,self,rt) do
+    if n == length(rt) do
+      %{"node"=> self, "level" => n}
+    else
+      d = String.at(g,n)
+      e = rt[n][d]
+      e = checkColumn(e,n,d,rt)
+      if e == self do
+        nextHop(n + 1,g,self,rt)
+      else
+        %{"node" => e, "level" => n}
+      end
+    end
+  end
 
+  def checkColumn(e,n,d,rt) do
+    d = String.to_integer(d, 16)
+    if e == nil do
+      d = rem((d + 1),16)
+      e = rt[n][d]
+      Integer.to_string(d, 16)
+      checkColumn(e,n,d,rt)
+    else
+      e
+    end
+  end
 
-#Generates the routing table
+  #Generates the routing table
   def tableInit(n,node_id,node_list) do
     IO.puts "node is #{node_id}"
     Enum.reduce(0..n, %{}, fn x, acc ->
@@ -39,7 +37,7 @@ defmodule Utils do
     end)
   end
 
-#Gets the node that is to be added to the routing table
+  #Gets the node that is to be added to the routing table
   def get_entry_node(node_id,node_list,level,column) do
     # IO.puts "level is #{level}"
     # IO.puts "column is #{column}"
