@@ -10,28 +10,48 @@ defmodule TapestryAlgorithm do
     end
 
     num_nodes = String.to_integer((Enum.at(arguments, 0)))
-    num_requests = Enum.at(arguments, 1)
+    num_requests = String.to_integer((Enum.at(arguments, 1)))
 
-    node_ids_list = generate_node_ids(num_nodes)
-    node_ids_integers = convert_node_ids_to_integers(node_ids_list)
+    add_value = (num_nodes*num_requests)
+    string_length=String.length(Integer.to_string(add_value))
+    # IO.puts "Length is #{string_length}"
 
-end
+    node_ids_list = generate_node_ids(num_nodes, string_length)
+    Enum.each(node_ids_list, fn node->
+      # routing_table = tableInit(string_length,node,node_ids_list)
+      {:ok, tapestry_node_pid} = GenServer.start_link(TapestryNode, [main_pid, node_ids_list, node, string_length])
+      # IO.inspect tapestry_node_pid
+    end)
 
-def generate_node_ids(num_nodes) do
-  node_list = Enum.map(1..num_nodes, fn node ->
-    Base.encode16(:crypto.hash(:sha, "#{node}"))
-  end)
-  #IO.inspect node_list
-  node_list
-end
+  end
 
-def convert_node_ids_to_integers(node_ids_list) do
-  node_id_inInteger = Enum.map(node_ids_list, fn node ->
-    String.to_integer(node,16)
-  end)
-  IO.inspect node_id_inInteger
-  node_id_inInteger
-end
+  #This is generating the node ids
+  def generate_node_ids(num_nodes, string_length) do
+    node_list = Enum.map(1..num_nodes-1, fn node ->
+      node_hash=Base.encode16(:crypto.hash(:sha, "#{node}"))
+      # if(String.at(node_hash, 0)==0) do
+      # longest_prefix_count=cond do
+      node_hash_nozero = remove_zero(node_hash)
+      String.slice((node_hash_nozero),0..string_length)
+      # Base.encode16(:crypto.hash(:sha, "#{node}"))
+    end)
+    IO.inspect node_list
+    node_list
+  end
+
+#This removes the nodes with leading zeros
+  def remove_zero(node_hash) do
+    node_hash_nozero=cond do
+         (String.at(node_hash, 0)=="0") ->
+           # IO.puts "Node hash is #{node_hash}"
+            n = :rand.uniform(10000)
+            hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
+            remove_zero(hash)
+         true ->
+             node_hash
+    end
+     node_hash_nozero
+  end
 
 
 end
