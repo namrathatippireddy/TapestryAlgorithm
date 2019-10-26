@@ -38,7 +38,6 @@ defmodule Utils do
     next
   end
 
-<<<<<<< HEAD
   def tableInit(isDynamic,node_state) do
     if isDynamic == false do
       Utils.tableInit1(Enum.at(node_state, 3),Enum.at(node_state, 2),Enum.at(node_state, 1))
@@ -54,10 +53,6 @@ defmodule Utils do
 
   #Generates the routing table
   def tableInit1(n,node_id,node_list) do
-=======
-  #Generates the routing table
-  def tableInit(n,node_id,node_list) do
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
     #IO.puts "node is #{node_id}"
     Enum.reduce(0..n, %{}, fn x, acc ->
       Map.put(acc, x, Enum.reduce(0..15, %{}, fn y, acc1 ->
@@ -86,10 +81,7 @@ defmodule Utils do
         # IO.puts "Possible nodes list is"
         # IO.inspect possible_entries_list
         closest_node = calculate_closest(possible_entries_list, node_id)
-<<<<<<< HEAD
         closest_node
-=======
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
         # IO.puts "Closest node for #{column} is #{closest_node}"
       else
         possible_entries_list = Enum.filter(node_list, fn node->
@@ -104,11 +96,7 @@ defmodule Utils do
         end)
         # IO.puts "Possible nodes list is"
         # IO.inspect possible_entries_list
-<<<<<<< HEAD
         calculate_closest(possible_entries_list, node_id)
-=======
-        closest_node = calculate_closest(possible_entries_list, node_id)
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
       end
     end
   end

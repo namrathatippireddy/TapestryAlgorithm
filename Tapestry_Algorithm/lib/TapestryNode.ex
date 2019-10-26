@@ -5,18 +5,13 @@ defmodule TapestryNode do
 
     state=  %{
       "main_pid" => Enum.at(node_state, 0),
-<<<<<<< HEAD
 #      "routingTable" => Utils.tableInit(Enum.at(node_state, 3),Enum.at(node_state, 2),Enum.at(node_state, 1)),
       "routingTable" => Utils.tableInit(Enum.at(node_state,4),node_state),
-=======
-      "routingTable" => Utils.tableInit(Enum.at(node_state, 3),Enum.at(node_state, 2),Enum.at(node_state, 1)),
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
       "nodeId" => Enum.at(node_state, 2),
       "global_list" => Enum.at(node_state, 1),
       "backPointers" => [],
       "node_hash_length" => Enum.at(node_state, 3)
       }
-<<<<<<< HEAD
     #IO.inspect(state["routingTable
     # IO.puts "Hey in init of GenServer"
     # IO.inspect(state["nodeId"])
@@ -24,21 +19,10 @@ defmodule TapestryNode do
     {:ok, state}
   end
 
-=======
-    {:ok, state}
-  end
-
-  # def handle_cast(:addNode, n) do
-  #
-  # end
-  #n = :rand.uniform(10000)
-  #object_hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
 
 
   def handle_cast({:start_hop, num_msgs}, state) do
     #IO.puts "Inside start hop"
-<<<<<<< HEAD
     #string_length = state["node_hash_length"]
     #nodeid = state["nodeId"]
     # IO.inspect "Node id is #{nodeid}"
@@ -53,18 +37,6 @@ defmodule TapestryNode do
     #IO.puts "Final object hash is #{final_object_hash}"
     GenServer.cast(self(), {:next_hop, 0, 0, final_object_hash})
     end)
-=======
-    string_length = state["node_hash_length"]
-    Enum.each(1..num_msgs, fn _x ->
-    n = :rand.uniform(10000)
-    object_hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
-    object_hash_nozero = remove_zero(object_hash)
-    final_object_hash=String.slice((object_hash_nozero),0..string_length)
-    #IO.puts "Final object hash is #{final_object_hash}"
-    GenServer.cast(self, {:next_hop, 0, 0, final_object_hash})
-    end)
-
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
     {:noreply, state}
 
   end
@@ -87,7 +59,6 @@ defmodule TapestryNode do
     {:noreply, state}
   end
 
-<<<<<<< HEAD
     def handle_cast({:addNodeMulticast, curLevel, newNodeId},state) do
       #multicast to current Level
       curNodes = Enum.reduce(state["routingTable"][curLevel], [],fn {_y,x}, acc ->
@@ -141,32 +112,11 @@ defmodule TapestryNode do
     nextHop = next["node"]
     curLevel = Utils.longest_prefix_match(newNodeId,state["nodeId"], 0,0)
     # IO.inspect("next hop for #{self} is #{nextHop}, new Node is #{newNodeId}")
-=======
-  #This removes the nodes with leading zeros
-    def remove_zero(object_hash) do
-      object_hash_nozero=cond do
-           (String.at(object_hash, 0)=="0") ->
-             # IO.puts "Node hash is #{node_hash}"
-              n = :rand.uniform(10000)
-              hash = Base.encode16(:crypto.hash(:sha, "#{n}"))
-              remove_zero(hash)
-           true ->
-               object_hash
-      end
-       object_hash_nozero
-    end
-
-  def handle_cast({:findSurrogate, n, newNodeId},state) do
-    next = Utils.nextHop(n,newNodeId,state["nodeId"],state["routingTable"])
-    nextHop = next["node"]
-    curLevel = Utils.longest_prefix_match(newNodeId,state["nodeId"], 0,0)
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
     isRootNode = if state["nodeId"] == nextHop do
       true
     else
       false
     end
-<<<<<<< HEAD
 
     newNodeList = if isRootNode == true do
       # IO.inspect("rootNode is true")
@@ -210,39 +160,19 @@ defmodule TapestryNode do
     #add node to own routing table at curLevel
     column = String.at(newNodeId,curLevel)
     state = if state["routingTable"][curLevel][column] == nil do
-=======
-    if isRootNode do
-      #check prefix match length to multicast
-      #here curLevel gives us the prefix match length
-      #multicast to the nodes in that level
-      Enum.each(state["routingTable"][curLevel], fn {_y,x} ->
-        if x != nil do
-          GenServer.cast(x, {:addNodeMulticast, n, newNodeId})
-        end
-        end)
-
-      column = String.at(newNodeId,curLevel)
-      state = if state["routingTable"][curLevel][column] == nil do
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
         state = put_in(state, ["routingTable",curLevel,column], newNodeId)
         #notifying new node that current node updated its routing table
         #GenServer.cast(newNodeId {:updateBackPointers, state["nodeId"], curLevel)
         state
       else
         newDistance = abs(String.to_integer(newNodeId, 16) - String.to_integer(state["nodeId"], 16))
-<<<<<<< HEAD
         curDistance = abs(String.to_integer(state["routingTable"][curLevel][column], 16) -
                   String.to_integer(state["nodeId"], 16))
         state = if newDistance < curDistance do
-=======
-        curDistance = abs(String.to_integer(newNodeId, 16) - String.to_integer(state["routingTable"][curLevel][column], 16))
-        if newDistance < curDistance do
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
           state = put_in(state, ["routingTable",curLevel,column], newNodeId)
           #notifying new node that current node updated its routing table
           #GenServer.cast(newNodeId, {:updateBackPointers, state["nodeId"], curLevel})
           state
-<<<<<<< HEAD
         else
           state
         end
@@ -267,22 +197,5 @@ defmodule TapestryNode do
         end
          object_hash_nozero
       end
-=======
-        end
-      end
-
-    else
-      #go to the next hop to find the right surrogate
-      GenServer.cast(nextHop, {:findSurrogate, curLevel + 1, newNodeId})
-    end
-    state
-    {:noreply, state}
-  end
-
-  #def handle_cast({:addNodeMulticast, n, newNodeId}, state) do
-
-  #end
-
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
 
 end
