@@ -18,25 +18,6 @@ defmodule TapestryAlgorithm do
     # IO.puts "Length is #{string_length}"
 
     node_ids_list = generate_node_ids(num_nodes, string_length)
-<<<<<<< HEAD
-
-    Enum.each(node_ids_list, fn node->
-      # routing_table = tableInit(string_length,node,node_ids_list)
-      {:ok, _tapestry_node_pid} = GenServer.start_link(TapestryNode,
-           [main_pid, node_ids_list, node, string_length,false], name: String.to_atom("actor_"<>node))
-      #IO.inspect tapestry_node_pid
-    end)
-
-    last_node = Enum.at(generate_node_ids(1, string_length),0)
-
-    last_node = remove_zero_or_duplicates(last_node,node_ids_list,string_length)
-
-    {:ok, _tapestry_node_pid} = GenServer.start_link(TapestryNode,
-      [main_pid, node_ids_list, last_node, string_length,true], name: String.to_atom("actor_"<>last_node))
-
-    #Start requesting for objects
-    start_requesting(node_ids_list, num_requests)
-=======
     Enum.each(node_ids_list, fn node->
       # routing_table = tableInit(string_length,node,node_ids_list)
       {:ok, _tapestry_node_pid} = GenServer.start_link(TapestryNode,
@@ -48,7 +29,6 @@ defmodule TapestryAlgorithm do
     start_requesting(node_ids_list, num_requests)
     maxCount = 0
     responseCount = 0
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
     loop(0,0,total_msgs - num_requests)
   end
 
@@ -84,19 +64,11 @@ defmodule TapestryAlgorithm do
       # longest_prefix_count=cond do
       node_hash_sliced = remove_zero_or_duplicates(node_hash, acc, string_length)
 
-<<<<<<< HEAD
-      acc ++ [node_hash_sliced]
-      #IO.inspect acc
-      # Base.encode16(:crypto.hash(:sha, "#{node}"))
-    end)
-    #IO.inspect node_list
-=======
       acc = acc ++ [node_hash_sliced]
       #IO.inspect acc
       # Base.encode16(:crypto.hash(:sha, "#{node}"))
     end)
     IO.inspect node_list
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
     node_list
   end
 
@@ -116,9 +88,6 @@ defmodule TapestryAlgorithm do
      node_hash_nozero
   end
 
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 6e15c832f30da8fab0f3035af7e718fd4eb43034
 end
